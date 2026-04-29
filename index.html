@@ -1,0 +1,2551 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>假日出遊抽籤｜加強版</title>
+  <meta name="description" content="全家一起射飛鏢抽出假日出遊地點，並查看景點推薦與行程規劃。" />
+  <style>
+    :root {
+      --bg: #f6ead8;
+      --panel: #fffaf3;
+      --ink: #3a2a1e;
+      --muted: #7f6953;
+      --line: #06c755;
+      --dad: #2f82dd;
+      --mom: #e94e73;
+      --sis: #f0a51f;
+      --bro: #20a85a;
+      --purple: #8a54dc;
+      --soft-purple: #f1e4ff;
+      --stroke: rgba(96, 65, 32, .12);
+      --shadow: 0 14px 34px rgba(60, 35, 12, .14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(180deg, #f8eee0 0%, #f4e6d4 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      width: min(1680px, calc(100% - 20px));
+      margin: 10px auto 30px;
+    }
+
+    .topbar {
+      background: rgba(255, 251, 244, .92);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 4px;
+      font-size: clamp(24px, 2vw, 34px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-wrap p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .topbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .help-chip,
+    .reset-btn {
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 900;
+      font-size: 15px;
+      border: 0;
+    }
+
+    .help-chip {
+      background: #fff1db;
+      color: #9b6625;
+      border: 1px dashed rgba(201, 127, 32, .3);
+    }
+
+    .reset-btn {
+      background: linear-gradient(135deg, #ffad47, #f28a2b);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(242, 138, 43, .28);
+    }
+
+    .hero-card {
+      background: transparent;
+      display: grid;
+      gap: 14px;
+    }
+
+    .stage-wrap {
+      position: relative;
+      background: #fffaf2;
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .stage {
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mockup {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .draw-tip {
+      position: absolute;
+      left: 50%;
+      bottom: 1.8%;
+      transform: translateX(-50%);
+      z-index: 26;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(96, 65, 32, .12);
+      box-shadow: 0 8px 18px rgba(43, 27, 12, .12);
+      font-weight: 900;
+      font-size: clamp(10px, 1.05vw, 18px);
+      color: #7d5d39;
+      white-space: nowrap;
+    }
+
+    .action-btn {
+      position: absolute;
+      z-index: 28;
+      border: 3px solid rgba(255,255,255,.92);
+      cursor: pointer;
+      color: #fff;
+      font-weight: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 2px;
+      text-align: center;
+      text-shadow: 0 1px 0 rgba(0,0,0,.16);
+      border-radius: 999px;
+      box-shadow: 0 14px 24px rgba(40,24,11,.22), 0 0 0 .5vw rgba(255,255,255,.16);
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+      animation: pulseGlow 1.7s infinite;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .action-btn:hover { transform: translateY(-2px) scale(1.02); }
+    .action-btn:disabled {
+      cursor: default;
+      opacity: .92;
+      animation: none;
+      transform: none;
+      box-shadow: 0 10px 20px rgba(40,24,11,.18);
+    }
+    .action-btn .main { font-size: clamp(10px, 1.45vw, 24px); line-height: 1; }
+    .action-btn .sub { font-size: clamp(8px, .9vw, 14px); line-height: 1; opacity: .98; }
+    .action-btn::before {
+      content: attr(data-tip);
+      position: absolute;
+      left: 50%; top: -42%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.96);
+      color: #7d5d39;
+      border-radius: 999px;
+      padding: .28em .72em;
+      font-size: clamp(8px, .9vw, 15px);
+      border: 1px solid rgba(96, 65, 32, .12);
+      box-shadow: 0 6px 12px rgba(40,24,11,.12);
+      white-space: nowrap;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 14px 24px rgba(40,24,11,.22), 0 0 0 .25vw rgba(255,255,255,.18); }
+      50% { box-shadow: 0 16px 28px rgba(40,24,11,.24), 0 0 0 .65vw rgba(255,255,255,.44); }
+    }
+
+    .btn-dad { left: 2.8%; top: 70.4%; width: 14.8%; height: 9.9%; background: linear-gradient(180deg, #57a8ff, var(--dad)); }
+    .btn-mom { left: 18.1%; top: 70.4%; width: 14.8%; height: 9.9%; background: linear-gradient(180deg, #ff8ea8, var(--mom)); }
+    .btn-sis { left: 34.7%; top: 70.4%; width: 15.4%; height: 9.9%; background: linear-gradient(180deg, #ffc74b, var(--sis)); }
+    .btn-bro { left: 59.2%; top: 70.4%; width: 15.2%; height: 9.9%; background: linear-gradient(180deg, #4ccd83, var(--bro)); }
+    .btn-reset { right: 2.3%; top: 1.9%; width: 12.2%; height: 6.5%; background: transparent; border: 0; box-shadow: none; }
+
+    .done-badge {
+      position: absolute;
+      z-index: 33;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-width: 9.5%;
+      height: 3.7%;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 900;
+      font-size: clamp(8px, 1vw, 18px);
+      box-shadow: 0 10px 18px rgba(40,24,11,.18);
+    }
+    .done-dad { left: 5.8%; top: 67.2%; background: var(--dad); }
+    .done-mom { left: 20.8%; top: 67.2%; background: var(--mom); }
+    .done-sis { left: 38.0%; top: 67.2%; background: var(--sis); }
+    .done-bro { left: 62.2%; top: 67.2%; background: var(--bro); }
+
+    .result-pill {
+      position: absolute;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .38em;
+      height: 5.6%;
+      width: 10.7%;
+      border-radius: 1vw;
+      font-weight: 900;
+      font-size: clamp(10px, 1.55vw, 27px);
+      letter-spacing: .02em;
+      white-space: nowrap;
+      box-shadow: 0 10px 18px rgba(45, 28, 12, .12);
+      pointer-events: none;
+    }
+    .result-pill.empty { background: #eee5db !important; color: #77624f !important; }
+    .row-dad { left: 84.7%; top: 20.7%; background: #ddecff; color: #1263c5; }
+    .row-mom { left: 84.7%; top: 32.75%; background: #ffdce5; color: #e23e64; }
+    .row-sis { left: 84.7%; top: 44.85%; background: #ffe8a7; color: #dc8410; }
+    .row-bro { left: 84.7%; top: 56.9%; background: #dff3d7; color: #178b43; }
+
+    .share-btn {
+      position: absolute;
+      z-index: 31;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4em;
+      border-radius: 999px;
+      background: var(--line);
+      color: #fff;
+      font-size: clamp(8px, 1.05vw, 18px);
+      font-weight: 900;
+      text-decoration: none;
+      box-shadow: 0 .55vw 1vw rgba(6, 199, 85, .22);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .share-btn.disabled { background: rgba(152, 148, 140, .74); box-shadow: none; pointer-events: none; }
+    .share-dad { left: 85.5%; top: 26.45%; width: 9.6%; height: 3.85%; }
+    .share-mom { left: 85.5%; top: 38.55%; width: 9.6%; height: 3.85%; }
+    .share-sis { left: 85.5%; top: 50.65%; width: 9.6%; height: 3.85%; }
+    .share-bro { left: 85.5%; top: 62.7%; width: 9.6%; height: 3.85%; }
+
+    .winner-place {
+      position: absolute;
+      z-index: 30;
+      left: 79.1%; top: 80.45%;
+      width: 13.9%; height: 7.2%;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 1vw;
+      background: linear-gradient(180deg, #f0dbff, #ead6ff);
+      color: #7742d0;
+      font-size: clamp(16px, 3.2vw, 54px);
+      font-weight: 1000;
+      letter-spacing: .03em;
+      text-shadow: 0 .12vw 0 rgba(255,255,255,.7);
+      pointer-events: none;
+    }
+    .winner-place.empty { background: #eee5db; color: #887466; font-size: clamp(12px, 1.65vw, 28px); }
+    .winner-vote {
+      position: absolute;
+      z-index: 31;
+      left: 90.2%; top: 81.8%;
+      width: 4%; height: 4.1%;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 999px;
+      background: #9a65e5; color: #fff;
+      font-weight: 900; font-size: clamp(8px, 1.25vw, 22px);
+      white-space: nowrap;
+    }
+    .winner-share { left: 79.1%; top: 88.8%; width: 14.9%; height: 5.6%; font-size: clamp(8px, 1.22vw, 22px); }
+    .tie-btn {
+      position: absolute;
+      z-index: 35;
+      left: 79.1%; top: 75.6%;
+      width: 14.9%; height: 4.35%;
+      border: 0; border-radius: 999px;
+      background: linear-gradient(135deg, #b185ff, #8b5ce6);
+      color: #fff; font-weight: 900;
+      font-size: clamp(8px, 1.1vw, 19px);
+      box-shadow: var(--shadow);
+      display: none; cursor: pointer;
+    }
+
+    .dart {
+      position: absolute;
+      z-index: 60;
+      width: 3.2%; aspect-ratio: 1 / 1;
+      display: grid; place-items: center;
+      font-size: clamp(18px, 2.4vw, 42px);
+      transform: translate(-50%, -50%) rotate(-18deg);
+      filter: drop-shadow(0 .35vw .4vw rgba(0,0,0,.28));
+      transition: left .82s cubic-bezier(.16,.86,.26,1), top .82s cubic-bezier(.16,.86,.26,1), transform .82s cubic-bezier(.16,.86,.26,1), opacity .2s ease;
+      pointer-events: none;
+    }
+    .dart.done { opacity: 0; transform: translate(-50%, -50%) scale(.82) rotate(12deg); }
+
+    .toast {
+      position: absolute;
+      z-index: 70;
+      left: 50%; bottom: 2.2%; transform: translateX(-50%) translateY(120%);
+      background: rgba(54, 38, 24, .94); color: #fff;
+      padding: .9% 1.4%; border-radius: 999px;
+      font-size: clamp(10px, 1.05vw, 18px); font-weight: 800;
+      box-shadow: 0 14px 30px rgba(39,24,12,.25);
+      opacity: 0;
+      transition: transform .28s ease, opacity .28s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+      margin-top: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,250,243,.95);
+      border: 1px solid var(--stroke);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: clamp(22px, 1.6vw, 30px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel .subnote {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .guide-card {
+      border: 1px solid var(--stroke);
+      border-radius: 20px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(46, 31, 14, .08);
+    }
+
+    .guide-header {
+      padding: 14px 16px;
+      color: #fff;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .guide-header .member-tag {
+      background: rgba(255,255,255,.18);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .guide-body { padding: 14px 16px 16px; }
+
+    .travel-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f7efe5;
+      color: #735841;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .guide-section-title {
+      margin: 12px 0 8px;
+      font-size: 16px;
+      font-weight: 1000;
+      color: #5d4430;
+    }
+
+    .info-list { margin: 0; padding-left: 1.2em; line-height: 1.7; }
+    .info-list li + li { margin-top: 4px; }
+
+    .food-list { display: grid; gap: 8px; }
+    .food-item {
+      border-radius: 14px;
+      background: #fff8ec;
+      border: 1px solid rgba(201, 160, 68, .16);
+      padding: 10px 12px;
+    }
+    .food-item strong { display: block; margin-bottom: 4px; }
+    .food-item span { color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+    .empty-card {
+      border: 2px dashed rgba(132, 101, 68, .22);
+      border-radius: 20px;
+      padding: 20px;
+      background: rgba(255,255,255,.72);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .winner-box {
+      display: grid;
+      gap: 14px;
+    }
+
+    .winner-summary {
+      border-radius: 20px;
+      background: linear-gradient(180deg, #f7ecff, #fff9ff);
+      border: 1px solid rgba(138, 84, 220, .16);
+      padding: 16px;
+    }
+
+    .winner-summary .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--soft-purple);
+      color: #7e44d7;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .winner-big {
+      margin: 0;
+      font-size: clamp(30px, 2.5vw, 44px);
+      color: #6d36c7;
+      line-height: 1.1;
+    }
+
+    .winner-desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .itinerary-card {
+      border-radius: 20px;
+      background: #fff;
+      border: 1px solid var(--stroke);
+      padding: 16px;
+      box-shadow: 0 10px 20px rgba(46, 31, 14, .08);
+    }
+
+    .itinerary-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .route-pill {
+      background: #fff2df;
+      color: #8e5a22;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .timeline { display: grid; gap: 12px; }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(96,65,32,.12);
+    }
+    .timeline-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .timeline-time {
+      background: #f2e9dc;
+      color: #684d34;
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: center;
+      font-weight: 1000;
+      font-size: 14px;
+    }
+    .timeline-content strong { display: block; margin-bottom: 4px; font-size: 16px; }
+    .timeline-content p { margin: 0; color: var(--muted); line-height: 1.65; font-size: 14px; }
+
+    .food-picks {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .food-pick {
+      border-radius: 16px;
+      background: #fdf7ec;
+      border: 1px solid rgba(203, 165, 74, .16);
+      padding: 12px 14px;
+    }
+    .food-pick strong { display: block; margin-bottom: 4px; }
+    .food-pick span { color: var(--muted); line-height: 1.6; font-size: 14px; }
+
+    @media (max-width: 1150px) {
+      .content-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .page { width: min(100%, calc(100% - 8px)); }
+      .topbar { border-radius: 16px; padding: 14px; }
+      .stage-wrap { border-radius: 18px; }
+      .content-grid { gap: 12px; }
+      .panel { border-radius: 18px; padding: 14px; }
+      .guide-grid { grid-template-columns: 1fr; }
+      .share-btn::before { content: "LINE"; }
+      .share-btn span { display: none; }
+    }
+
+    @media (max-width: 680px) {
+      .draw-tip { bottom: .8%; width: calc(100% - 18px); text-align: center; }
+      .timeline-item { grid-template-columns: 1fr; }
+      .timeline-time { width: fit-content; }
+      .action-btn .main { font-size: clamp(9px, 1.2vw, 14px); }
+      .action-btn .sub { font-size: clamp(7px, .8vw, 11px); }
+      .action-btn::before { display: none; }
+    }
+
+    .person-status {
+      position: absolute;
+      z-index: 42;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: rgba(255, 249, 239, .97);
+      color: #7d5d39;
+      border: 1px solid rgba(116, 82, 45, .14);
+      box-shadow: 0 .5vw 1vw rgba(45, 28, 12, .12);
+      font-size: clamp(8px, .9vw, 16px);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .person-status.active { background: #fff4db; color: #a16213; }
+    .status-dad { left: 85.5%; top: 26.45%; width: 9.6%; height: 3.85%; }
+    .status-mom { left: 85.5%; top: 38.55%; width: 9.6%; height: 3.85%; }
+    .status-sis { left: 85.5%; top: 50.65%; width: 9.6%; height: 3.85%; }
+    .status-bro { left: 85.5%; top: 62.7%; width: 9.6%; height: 3.85%; }
+
+    .linked-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+    .linked-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #fff8ec;
+      border: 1px solid rgba(201, 160, 68, .16);
+    }
+    .linked-row strong { display: block; margin-bottom: 3px; }
+    .linked-row span { color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .link-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .map-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #fff;
+      border: 1px solid rgba(96, 65, 32, .12);
+      color: #8e5a22;
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .map-link.nav { background: #eaf4ff; color: #1765b9; }
+    .day-toggle { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .day-toggle button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: #f3e8dc;
+      color: #75583f;
+      font-weight: 1000;
+      cursor: pointer;
+    }
+    .day-toggle button.active {
+      background: linear-gradient(135deg, #ad83ff, #8a54dc);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(138, 84, 220, .20);
+    }
+    .route-action { margin: 10px 0 14px; }
+    .route-action .map-link { font-size: 14px; padding: 9px 14px; }
+    @media (max-width: 680px) {
+      .linked-row { grid-template-columns: 1fr; }
+      .link-actions { justify-content: flex-start; }
+      .person-status { font-size: clamp(7px, 1vw, 11px); }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>🎯 假日出遊抽籤</h1>
+        <p>點下方更明顯的彩色大按鈕抽籤。抽出的景點會顯示更多推薦去處、美食名店與 Google Maps 導航；最高票縣市可切換 1 日遊 / 2 日遊行程。</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="help-chip">👇 抽籤池：台灣 22 縣市｜美食排除海鮮類</div>
+        <button id="resetTopBtn" class="reset-btn">↻ 重新開始</button>
+      </div>
+    </div>
+
+    <section class="hero-card">
+      <div class="stage-wrap">
+        <div class="stage" id="stage">
+          <img class="mockup" src="./family_travel_dart_game_interface.png" alt="假日出遊抽籤主畫面" />
+
+          <button class="action-btn btn-reset" id="resetBtn" aria-label="重新開始"></button>
+          <button class="action-btn btn-dad" data-member="dad" data-tip="點我抽籤" aria-label="爸爸射飛鏢">
+            <span class="main">🎯 爸爸射飛鏢</span>
+            <span class="sub">按這裡抽籤</span>
+          </button>
+          <button class="action-btn btn-mom" data-member="mom" data-tip="點我抽籤" aria-label="媽媽射飛鏢">
+            <span class="main">🎯 媽媽射飛鏢</span>
+            <span class="sub">按這裡抽籤</span>
+          </button>
+          <button class="action-btn btn-sis" data-member="sis" data-tip="點我抽籤" aria-label="姊姊射飛鏢">
+            <span class="main">🎯 姊姊射飛鏢</span>
+            <span class="sub">按這裡抽籤</span>
+          </button>
+          <button class="action-btn btn-bro" data-member="bro" data-tip="點我抽籤" aria-label="弟弟射飛鏢">
+            <span class="main">🎯 弟弟射飛鏢</span>
+            <span class="sub">按這裡抽籤</span>
+          </button>
+
+          <div id="done-dad" class="done-badge done-dad">爸爸已抽</div>
+          <div id="done-mom" class="done-badge done-mom">媽媽已抽</div>
+          <div id="done-sis" class="done-badge done-sis">姊姊已抽</div>
+          <div id="done-bro" class="done-badge done-bro">弟弟已抽</div>
+
+          <div id="pill-dad" class="result-pill row-dad empty">📍 尚未抽</div>
+          <div id="pill-mom" class="result-pill row-mom empty">📍 尚未抽</div>
+          <div id="pill-sis" class="result-pill row-sis empty">📍 尚未抽</div>
+          <div id="pill-bro" class="result-pill row-bro empty">📍 尚未抽</div>
+          <div id="status-dad" class="person-status status-dad">尚未抽籤</div>
+          <div id="status-mom" class="person-status status-mom">尚未抽籤</div>
+          <div id="status-sis" class="person-status status-sis">尚未抽籤</div>
+          <div id="status-bro" class="person-status status-bro">尚未抽籤</div>
+
+          <button id="tieBreakBtn" class="tie-btn">🎲 平手地點決勝抽</button>
+          <div id="winnerPlace" class="winner-place empty">尚未抽籤</div>
+          <div id="winnerVote" class="winner-vote">0票</div>
+          <a id="winnerShare" class="share-btn winner-share disabled" href="#" aria-disabled="true"><span>分享到 LINE 群組</span></a>
+
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+          <div class="draw-tip">👇 點上方彩色大按鈕就能抽籤；抽籤池已加入台灣 22 縣市；美食推薦已排除海鮮類</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel">
+        <h2>🗺️ 抽到的縣市推薦</h2>
+        <p class="subnote">4 位家人各自抽到哪個縣市，就會在這裡顯示該縣市推薦景點、交通時間、更多在地名店與 Google Maps 導航連結。美食清單已排除所有海鮮類食物。</p>
+        <div id="pickedGuideGrid" class="guide-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>🧳 最高票縣市行程規劃</h2>
+        <p class="subnote">系統會根據目前最高票縣市，自動顯示從 <strong>新竹市磐石路</strong> 出發的建議行程，並可切換 <strong>1 日遊 / 2 日遊</strong>。若最高票平手，請先按上方右側的「平手地點決勝抽」。</p>
+        <div id="winnerPlanner" class="winner-box"></div>
+      </section>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'family-trip-dart-exact-v4-all-counties-no-seafood';
+
+    const members = [
+      { id: 'dad', name: '爸爸', color: '#2f82dd', dart: '🔵', button: '.btn-dad' },
+      { id: 'mom', name: '媽媽', color: '#e94e73', dart: '🔴', button: '.btn-mom' },
+      { id: 'sis', name: '姊姊', color: '#f0a51f', dart: '🟡', button: '.btn-sis' },
+      { id: 'bro', name: '弟弟', color: '#20a85a', dart: '🟢', button: '.btn-bro' }
+    ];
+
+    const attractions = [
+          {
+                "id": "taipei_city",
+                "name": "臺北市",
+                "x": 48.0,
+                "y": 16.0
+          },
+          {
+                "id": "new_taipei_city",
+                "name": "新北市",
+                "x": 51.0,
+                "y": 18.0
+          },
+          {
+                "id": "keelung_city",
+                "name": "基隆市",
+                "x": 53.0,
+                "y": 15.0
+          },
+          {
+                "id": "taoyuan_city",
+                "name": "桃園市",
+                "x": 45.5,
+                "y": 20.5
+          },
+          {
+                "id": "hsinchu_city",
+                "name": "新竹市",
+                "x": 42.5,
+                "y": 23.2
+          },
+          {
+                "id": "hsinchu_county",
+                "name": "新竹縣",
+                "x": 44.4,
+                "y": 24.5
+          },
+          {
+                "id": "miaoli_county",
+                "name": "苗栗縣",
+                "x": 42.2,
+                "y": 28.2
+          },
+          {
+                "id": "taichung_city",
+                "name": "臺中市",
+                "x": 39.3,
+                "y": 32.7
+          },
+          {
+                "id": "changhua_county",
+                "name": "彰化縣",
+                "x": 36.8,
+                "y": 36.3
+          },
+          {
+                "id": "nantou_county",
+                "name": "南投縣",
+                "x": 43.0,
+                "y": 37.3
+          },
+          {
+                "id": "yunlin_county",
+                "name": "雲林縣",
+                "x": 35.0,
+                "y": 42.2
+          },
+          {
+                "id": "chiayi_city",
+                "name": "嘉義市",
+                "x": 37.2,
+                "y": 45.6
+          },
+          {
+                "id": "chiayi_county",
+                "name": "嘉義縣",
+                "x": 39.0,
+                "y": 45.2
+          },
+          {
+                "id": "tainan_city",
+                "name": "臺南市",
+                "x": 32.5,
+                "y": 51.2
+          },
+          {
+                "id": "kaohsiung_city",
+                "name": "高雄市",
+                "x": 34.2,
+                "y": 58.0
+          },
+          {
+                "id": "pingtung_county",
+                "name": "屏東縣",
+                "x": 39.2,
+                "y": 64.0
+          },
+          {
+                "id": "yilan_county",
+                "name": "宜蘭縣",
+                "x": 54.0,
+                "y": 27.5
+          },
+          {
+                "id": "hualien_county",
+                "name": "花蓮縣",
+                "x": 52.8,
+                "y": 42.0
+          },
+          {
+                "id": "taitung_county",
+                "name": "臺東縣",
+                "x": 49.3,
+                "y": 53.0
+          },
+          {
+                "id": "penghu_county",
+                "name": "澎湖縣",
+                "x": 25.0,
+                "y": 48.0
+          },
+          {
+                "id": "kinmen_county",
+                "name": "金門縣",
+                "x": 20.0,
+                "y": 52.5
+          },
+          {
+                "id": "lienchiang_county",
+                "name": "連江縣",
+                "x": 25.5,
+                "y": 22.0
+          }
+    ];
+
+    const countySeeds = {
+          "taipei_city": {
+                "transport": "開車約 1 小時 15 分",
+                "duration": "1 日遊 / 2 日遊都適合",
+                "summary": "城市景點密集，雨天也好安排，適合逛街、看展、吃非海鮮類美食。",
+                "spots": [
+                      {
+                            "name": "台北 101",
+                            "note": "觀景台、信義商圈與夜景最經典。"
+                      },
+                      {
+                            "name": "國立故宮博物院",
+                            "note": "適合喜歡文化展覽與歷史文物的家庭。"
+                      },
+                      {
+                            "name": "華山 1914 文化創意產業園區",
+                            "note": "展覽、咖啡、選物店都方便。"
+                      },
+                      {
+                            "name": "松山文創園區",
+                            "note": "文創展覽與誠品生活可一起安排。"
+                      },
+                      {
+                            "name": "大稻埕迪化街",
+                            "note": "老街、伴手禮、河岸散步很舒服。"
+                      },
+                      {
+                            "name": "北投溫泉博物館",
+                            "note": "想要慢步調可安排北投溫泉線。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "鼎泰豐 信義店",
+                            "note": "小籠包、炒飯、雞湯接受度高。"
+                      },
+                      {
+                            "name": "阜杭豆漿",
+                            "note": "厚燒餅、鹹豆漿是台北早午餐名店。"
+                      },
+                      {
+                            "name": "林東芳牛肉麵",
+                            "note": "牛肉麵人氣高，湯頭濃郁。"
+                      },
+                      {
+                            "name": "富霸王豬腳",
+                            "note": "豬腳、腿扣與滷味是不少人的台北口袋名單。"
+                      },
+                      {
+                            "name": "金峰魯肉飯",
+                            "note": "滷肉飯、排骨與青菜都適合快速用餐。"
+                      },
+                      {
+                            "name": "永康牛肉麵",
+                            "note": "永康街代表牛肉麵選擇之一。"
+                      }
+                ]
+          },
+          "new_taipei_city": {
+                "transport": "開車約 1 小時 20 分",
+                "duration": "1 日遊 / 2 日北海岸遊",
+                "summary": "山城、老街、溫泉與自然景點都多，適合彈性安排。",
+                "spots": [
+                      {
+                            "name": "淡水老街",
+                            "note": "河岸散步、夕陽與伴手禮很適合全家。"
+                      },
+                      {
+                            "name": "九份老街",
+                            "note": "山城茶屋、老街步道與夜景都很有氣氛。"
+                      },
+                      {
+                            "name": "平溪老街",
+                            "note": "放天燈、鐵道散步，親子很有參與感。"
+                      },
+                      {
+                            "name": "烏來老街",
+                            "note": "溫泉、瀑布與山林感兼具。"
+                      },
+                      {
+                            "name": "林本源園邸",
+                            "note": "板橋古蹟庭園，適合慢慢走拍照。"
+                      },
+                      {
+                            "name": "野柳地質公園",
+                            "note": "特殊地景很有特色，注意防曬與風。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "淡水阿給",
+                            "note": "豆皮包冬粉，淡水代表小吃。"
+                      },
+                      {
+                            "name": "阿婆鐵蛋",
+                            "note": "老街伴手禮經典，攜帶方便。"
+                      },
+                      {
+                            "name": "金山鴨肉",
+                            "note": "多人分食很方便，是金山知名排隊店。"
+                      },
+                      {
+                            "name": "三峽牛角麵包",
+                            "note": "三峽老街常見伴手禮，口感紮實。"
+                      },
+                      {
+                            "name": "板橋南雅夜市臭豆腐",
+                            "note": "夜市小吃選擇多，臭豆腐很受歡迎。"
+                      },
+                      {
+                            "name": "永和豆漿",
+                            "note": "宵夜或早餐都方便，燒餅油條選擇多。"
+                      }
+                ]
+          },
+          "keelung_city": {
+                "transport": "開車約 1 小時 40 分",
+                "duration": "1 日遊 / 2 日東北角遊",
+                "summary": "港都城市與山海景點集中；美食清單已避開海鮮類，改選甜點、豬腳、炒麵與伴手禮。",
+                "spots": [
+                      {
+                            "name": "和平島公園",
+                            "note": "海岸地景漂亮，步道也好走。"
+                      },
+                      {
+                            "name": "潮境公園",
+                            "note": "視野開闊，適合散步拍照。"
+                      },
+                      {
+                            "name": "正濱漁港彩色屋",
+                            "note": "彩色建築很好拍。"
+                      },
+                      {
+                            "name": "中正公園",
+                            "note": "市區制高點，可眺望港景。"
+                      },
+                      {
+                            "name": "大武崙砲台",
+                            "note": "古蹟步道與海景兼具。"
+                      },
+                      {
+                            "name": "基隆廟口夜市",
+                            "note": "夜市氣氛熱鬧，可挑選非海鮮小吃。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "李鵠餅店",
+                            "note": "百年糕餅老店，鳳梨酥與綠豆椪常被當伴手禮。"
+                      },
+                      {
+                            "name": "紀家豬腳原汁專家",
+                            "note": "豬腳湯與滷味風味濃厚。"
+                      },
+                      {
+                            "name": "遠東泡泡冰",
+                            "note": "基隆代表冰品，飯後甜點很適合。"
+                      },
+                      {
+                            "name": "阿華炒麵",
+                            "note": "炒麵與滷味是常見在地早餐選擇。"
+                      },
+                      {
+                            "name": "廟口營養三明治",
+                            "note": "酥炸麵包夾火腿蛋沙拉，接受度高。"
+                      },
+                      {
+                            "name": "連珍糕餅店",
+                            "note": "芋泥球與糕餅類伴手禮有名。"
+                      }
+                ]
+          },
+          "taoyuan_city": {
+                "transport": "開車約 45 分",
+                "duration": "1 日遊最輕鬆 / 2 日可加北橫",
+                "summary": "離新竹近，老街、親子景點、湖景與購物都能排進去。",
+                "spots": [
+                      {
+                            "name": "大溪老街",
+                            "note": "豆干、老街建築與橋景都好逛。"
+                      },
+                      {
+                            "name": "慈湖紀念雕塑公園",
+                            "note": "園區寬敞，適合散步。"
+                      },
+                      {
+                            "name": "小烏來天空步道",
+                            "note": "瀑布與玻璃步道很有記憶點。"
+                      },
+                      {
+                            "name": "龍潭大池",
+                            "note": "湖畔散步、踩船與咖啡店都好安排。"
+                      },
+                      {
+                            "name": "華泰名品城",
+                            "note": "想逛街購物可安排。"
+                      },
+                      {
+                            "name": "三坑自然生態公園",
+                            "note": "親子散步、野餐很舒服。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "永川牛肉麵",
+                            "note": "中壢知名牛肉麵，湯頭濃郁。"
+                      },
+                      {
+                            "name": "大溪豆干",
+                            "note": "大溪代表伴手禮，適合買回家。"
+                      },
+                      {
+                            "name": "老阿伯現滷豆干",
+                            "note": "大溪老街人氣滷味。"
+                      },
+                      {
+                            "name": "劉媽媽菜包",
+                            "note": "客家米食點心，口味樸實。"
+                      },
+                      {
+                            "name": "中壢新明夜市湯圓",
+                            "note": "甜湯圓與夜市小吃可當晚餐收尾。"
+                      },
+                      {
+                            "name": "大房豆干",
+                            "note": "大溪老字號豆干品牌。"
+                      }
+                ]
+          },
+          "hsinchu_city": {
+                "transport": "市區內約 10～30 分",
+                "duration": "半日 / 1 日遊最適合",
+                "summary": "從磐石路出發最方便，適合輕鬆走景點、吃在地小吃。",
+                "spots": [
+                      {
+                            "name": "新竹都城隍廟",
+                            "note": "經典小吃聚集地。"
+                      },
+                      {
+                            "name": "新竹市立動物園",
+                            "note": "親子友善，動線輕鬆。"
+                      },
+                      {
+                            "name": "十八尖山",
+                            "note": "市區綠地步道，適合散步。"
+                      },
+                      {
+                            "name": "玻璃工藝博物館",
+                            "note": "新竹特色展館，適合慢慢看。"
+                      },
+                      {
+                            "name": "香山濕地",
+                            "note": "看夕陽與散步很舒服。"
+                      },
+                      {
+                            "name": "新竹公園",
+                            "note": "綠地、湖畔與動物園可一起排。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "城隍廟口肉圓",
+                            "note": "新竹代表小吃之一，醬料香氣足。"
+                      },
+                      {
+                            "name": "鴨肉許",
+                            "note": "鴨肉飯、炒鴨血等在地人氣店。"
+                      },
+                      {
+                            "name": "柳家肉燥飯",
+                            "note": "新竹常見排隊小吃，肉燥飯很有名。"
+                      },
+                      {
+                            "name": "段純貞牛肉麵",
+                            "note": "牛肉麵與滷味適合家庭用餐。"
+                      },
+                      {
+                            "name": "淵明餅舖",
+                            "note": "水蒸蛋糕與傳統糕點是伴手禮選擇。"
+                      },
+                      {
+                            "name": "新竹牧場冰品",
+                            "note": "逛完市區可當甜點收尾。"
+                      }
+                ]
+          },
+          "hsinchu_county": {
+                "transport": "開車約 30 分～1 小時 20 分",
+                "duration": "1 日遊 / 2 日山線遊",
+                "summary": "客家老街、親子樂園與山線景點豐富，很適合家庭旅行。",
+                "spots": [
+                      {
+                            "name": "內灣老街",
+                            "note": "鐵道、老街與客家小吃都好逛。"
+                      },
+                      {
+                            "name": "北埔老街",
+                            "note": "擂茶、客家聚落與古蹟聚集。"
+                      },
+                      {
+                            "name": "六福村主題遊樂園",
+                            "note": "親子與青少年都很適合。"
+                      },
+                      {
+                            "name": "綠世界生態農場",
+                            "note": "動物與生態體驗豐富。"
+                      },
+                      {
+                            "name": "峨眉湖",
+                            "note": "湖景散步與大佛景觀適合慢遊。"
+                      },
+                      {
+                            "name": "新埔老街",
+                            "note": "柿餅、宗祠與客家聚落特色明顯。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "北埔擂茶",
+                            "note": "客家特色茶點，適合體驗。"
+                      },
+                      {
+                            "name": "內灣野薑花粽",
+                            "note": "內灣代表點心之一，香氣特別。"
+                      },
+                      {
+                            "name": "竹東排骨酥麵",
+                            "note": "湯頭香、排骨酥口感好。"
+                      },
+                      {
+                            "name": "新埔粄條",
+                            "note": "客家粄條口味樸實，適合午餐。"
+                      },
+                      {
+                            "name": "北埔柿餅",
+                            "note": "季節限定感強，是很好的伴手禮。"
+                      },
+                      {
+                            "name": "湖口老街牛汶水",
+                            "note": "客家傳統點心，適合甜點收尾。"
+                      }
+                ]
+          },
+          "miaoli_county": {
+                "transport": "開車約 1 小時～1 小時 30 分",
+                "duration": "1 日遊 / 2 日山城遊",
+                "summary": "山線鐵道、客家聚落、牧場與老街都很適合家庭走走。",
+                "spots": [
+                      {
+                            "name": "勝興車站",
+                            "note": "舊山線鐵道風景經典。"
+                      },
+                      {
+                            "name": "龍騰斷橋",
+                            "note": "歷史地景與拍照熱點。"
+                      },
+                      {
+                            "name": "三義木雕街",
+                            "note": "木雕文化、藝品店與老街。"
+                      },
+                      {
+                            "name": "南庄老街",
+                            "note": "桂花巷、老街與客家風情。"
+                      },
+                      {
+                            "name": "明德水庫",
+                            "note": "湖景散步與咖啡廳可安排。"
+                      },
+                      {
+                            "name": "飛牛牧場",
+                            "note": "親子牧場，互動體驗豐富。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "苗栗客家粄條",
+                            "note": "客家經典主食，口味樸實。"
+                      },
+                      {
+                            "name": "南庄桂花釀湯圓",
+                            "note": "桂花香氣甜點，適合老街散步後吃。"
+                      },
+                      {
+                            "name": "江技舊記餛飩",
+                            "note": "苗栗市人氣餛飩老店。"
+                      },
+                      {
+                            "name": "苑裡垂坤肉鬆",
+                            "note": "伴手禮選擇多，肉乾肉鬆很有名。"
+                      },
+                      {
+                            "name": "大湖草莓冰淇淋",
+                            "note": "大湖季節感甜點，孩子會喜歡。"
+                      },
+                      {
+                            "name": "三義客家小炒",
+                            "note": "客家料理經典，適合多人共食。"
+                      }
+                ]
+          },
+          "taichung_city": {
+                "transport": "開車約 1 小時 20 分",
+                "duration": "1 日遊 / 2 日城市遊",
+                "summary": "城市、美術、夜市與郊區景點都多，年輕人與長輩都能找到喜歡的點。",
+                "spots": [
+                      {
+                            "name": "宮原眼科",
+                            "note": "建築與冰品都很有特色。"
+                      },
+                      {
+                            "name": "審計新村",
+                            "note": "文青小店、甜點與拍照點多。"
+                      },
+                      {
+                            "name": "高美濕地",
+                            "note": "夕陽與木棧道很有名。"
+                      },
+                      {
+                            "name": "國立自然科學博物館",
+                            "note": "親子和雨天都很適合。"
+                      },
+                      {
+                            "name": "東勢林場",
+                            "note": "森林步道與自然景觀。"
+                      },
+                      {
+                            "name": "麗寶樂園",
+                            "note": "遊樂園、賽車與購物可一起安排。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "宮原眼科冰淇淋",
+                            "note": "冰品精緻，拍照也漂亮。"
+                      },
+                      {
+                            "name": "第二市場山河魯肉飯",
+                            "note": "台中第二市場經典早午餐。"
+                      },
+                      {
+                            "name": "春水堂珍珠奶茶",
+                            "note": "珍珠奶茶代表品牌之一。"
+                      },
+                      {
+                            "name": "台中肉員",
+                            "note": "台中傳統小吃，口感與醬料有特色。"
+                      },
+                      {
+                            "name": "一中街胖子雞排",
+                            "note": "逛街時很適合的炸物小吃。"
+                      },
+                      {
+                            "name": "逢甲地瓜球",
+                            "note": "夜市甜點小吃，接受度高。"
+                      }
+                ]
+          },
+          "changhua_county": {
+                "transport": "開車約 1 小時 45 分",
+                "duration": "1 日遊 / 2 日鹿港遊",
+                "summary": "鹿港老街、古蹟、鐵道與小吃密度高，適合慢慢散步。",
+                "spots": [
+                      {
+                            "name": "鹿港老街",
+                            "note": "古蹟、糕餅與街屋文化經典。"
+                      },
+                      {
+                            "name": "八卦山大佛",
+                            "note": "彰化地標，可俯瞰市區。"
+                      },
+                      {
+                            "name": "扇形車庫",
+                            "note": "鐵道迷與親子都會喜歡。"
+                      },
+                      {
+                            "name": "田尾公路花園",
+                            "note": "花卉、盆栽與單車散步。"
+                      },
+                      {
+                            "name": "溪湖糖廠",
+                            "note": "五分車、冰品與糖廠文化。"
+                      },
+                      {
+                            "name": "芳苑濕地",
+                            "note": "自然景觀與夕陽很漂亮。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "阿璋肉圓",
+                            "note": "彰化肉圓代表名店之一。"
+                      },
+                      {
+                            "name": "北門口肉圓",
+                            "note": "酥皮肉圓人氣高。"
+                      },
+                      {
+                            "name": "泉焢肉飯",
+                            "note": "彰化爌肉飯名店，適合午餐。"
+                      },
+                      {
+                            "name": "老龍師肉包",
+                            "note": "鹿港伴手禮與點心選擇。"
+                      },
+                      {
+                            "name": "玉華珍麻糬",
+                            "note": "鹿港甜點伴手禮。"
+                      },
+                      {
+                            "name": "彰化涼圓",
+                            "note": "清爽點心，適合下午吃。"
+                      }
+                ]
+          },
+          "nantou_county": {
+                "transport": "開車約 2 小時～2 小時 40 分",
+                "duration": "1 日遊 / 2 日山湖遊",
+                "summary": "湖景、高山、森林步道與農場景觀豐富，適合放慢腳步。",
+                "spots": [
+                      {
+                            "name": "日月潭",
+                            "note": "湖景、纜車、碼頭與環湖路線經典。"
+                      },
+                      {
+                            "name": "清境農場",
+                            "note": "青青草原與山景適合家庭旅行。"
+                      },
+                      {
+                            "name": "溪頭自然教育園區",
+                            "note": "森林步道與芬多精很舒服。"
+                      },
+                      {
+                            "name": "杉林溪森林生態渡假園區",
+                            "note": "山林景觀、花卉與步道。"
+                      },
+                      {
+                            "name": "九族文化村",
+                            "note": "遊樂設施與文化體驗兼具。"
+                      },
+                      {
+                            "name": "合歡山觀景點",
+                            "note": "高山景色壯觀，需注意天候。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "清境魯媽媽雲南料理",
+                            "note": "山上人氣餐廳，適合多人共食。"
+                      },
+                      {
+                            "name": "埔里蘇媽媽湯圓",
+                            "note": "甜湯圓與鹹湯圓都受歡迎。"
+                      },
+                      {
+                            "name": "埔里胡國雄古早麵",
+                            "note": "埔里在地古早味麵食。"
+                      },
+                      {
+                            "name": "埔里酒廠紹興香腸",
+                            "note": "酒廠伴手禮與小吃選擇。"
+                      },
+                      {
+                            "name": "日月潭阿薩姆紅茶",
+                            "note": "茶香濃郁，適合買伴手禮。"
+                      },
+                      {
+                            "name": "車埕木茶房",
+                            "note": "車埕一帶可安排簡餐與下午茶。"
+                      }
+                ]
+          },
+          "yunlin_county": {
+                "transport": "開車約 2 小時 10 分",
+                "duration": "1 日遊 / 2 日慢遊",
+                "summary": "廟口老街、糖廠、布袋戲與咖啡景點都很有地方特色。",
+                "spots": [
+                      {
+                            "name": "北港朝天宮",
+                            "note": "歷史廟宇與老街小吃聚集。"
+                      },
+                      {
+                            "name": "虎尾糖廠",
+                            "note": "糖廠文化與冰品很適合親子。"
+                      },
+                      {
+                            "name": "雲林布袋戲館",
+                            "note": "認識布袋戲文化。"
+                      },
+                      {
+                            "name": "古坑綠色隧道",
+                            "note": "散步、騎車與咖啡行程。"
+                      },
+                      {
+                            "name": "劍湖山世界",
+                            "note": "親子遊樂園選擇。"
+                      },
+                      {
+                            "name": "西螺大橋",
+                            "note": "經典地標與老街可一起排。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "北港圓仔湯",
+                            "note": "北港經典甜湯點心。"
+                      },
+                      {
+                            "name": "日興堂囍餅",
+                            "note": "北港知名糕餅伴手禮。"
+                      },
+                      {
+                            "name": "西螺九層粿",
+                            "note": "西螺傳統米食點心。"
+                      },
+                      {
+                            "name": "虎尾王家當歸鴨",
+                            "note": "當歸湯頭與鴨肉適合用餐。"
+                      },
+                      {
+                            "name": "古坑咖啡",
+                            "note": "古坑代表飲品，適合下午茶。"
+                      },
+                      {
+                            "name": "斗六溝壩清涼冰店",
+                            "note": "古早味冰品，夏天很適合。"
+                      }
+                ]
+          },
+          "chiayi_city": {
+                "transport": "開車約 2 小時 30 分",
+                "duration": "1 日遊 / 2 日嘉義慢遊",
+                "summary": "火雞肉飯、文化路夜市、檜意森活村與公園景點都集中。",
+                "spots": [
+                      {
+                            "name": "檜意森活村",
+                            "note": "日式建築群、文創與拍照點多。"
+                      },
+                      {
+                            "name": "嘉義公園",
+                            "note": "射日塔、綠地與散步路線。"
+                      },
+                      {
+                            "name": "森林之歌",
+                            "note": "城市裝置藝術地標。"
+                      },
+                      {
+                            "name": "文化路夜市",
+                            "note": "晚餐與點心集中。"
+                      },
+                      {
+                            "name": "蘭潭風景區",
+                            "note": "湖景散步與夜景。"
+                      },
+                      {
+                            "name": "北門車站",
+                            "note": "阿里山林鐵歷史氛圍。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "阿宏師火雞肉飯",
+                            "note": "嘉義代表美食，口味穩定。"
+                      },
+                      {
+                            "name": "民主火雞肉飯",
+                            "note": "文化路附近人氣火雞肉飯。"
+                      },
+                      {
+                            "name": "郭家粿仔湯雞肉飯",
+                            "note": "粿仔湯與雞肉飯是招牌組合。"
+                      },
+                      {
+                            "name": "嘉義涼麵",
+                            "note": "芝麻醬風味清爽，適合午餐。"
+                      },
+                      {
+                            "name": "桃城豆花",
+                            "note": "飯後甜點選擇，口味清爽。"
+                      },
+                      {
+                            "name": "源興御香屋葡萄柚綠茶",
+                            "note": "嘉義人氣飲料店。"
+                      }
+                ]
+          },
+          "chiayi_county": {
+                "transport": "開車約 2 小時 40 分～3 小時 30 分",
+                "duration": "1 日遊 / 2 日阿里山遊",
+                "summary": "阿里山、奮起湖、故宮南院與鄉鎮老街選擇多。",
+                "spots": [
+                      {
+                            "name": "阿里山森林遊樂區",
+                            "note": "森林鐵路、神木、雲海與步道。"
+                      },
+                      {
+                            "name": "奮起湖老街",
+                            "note": "鐵道便當與老街散步。"
+                      },
+                      {
+                            "name": "故宮南院",
+                            "note": "展館與戶外園區都適合家庭。"
+                      },
+                      {
+                            "name": "太平雲梯",
+                            "note": "高空吊橋與山景。"
+                      },
+                      {
+                            "name": "新港奉天宮",
+                            "note": "廟宇文化與老街。"
+                      },
+                      {
+                            "name": "民雄鬼屋",
+                            "note": "話題性景點，適合拍照。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "奮起湖便當",
+                            "note": "鐵路便當代表，適合旅途中用餐。"
+                      },
+                      {
+                            "name": "民雄鵝肉亭",
+                            "note": "鵝肉料理人氣高，多人分食方便。"
+                      },
+                      {
+                            "name": "新港飴",
+                            "note": "嘉義縣代表甜點伴手禮。"
+                      },
+                      {
+                            "name": "大林臭豆腐",
+                            "note": "地方小吃，口感外酥內嫩。"
+                      },
+                      {
+                            "name": "阿里山高山茶",
+                            "note": "高山茶適合買回家。"
+                      },
+                      {
+                            "name": "太保鴨肉飯",
+                            "note": "簡單飽足的地方小吃。"
+                      }
+                ]
+          },
+          "tainan_city": {
+                "transport": "開車約 2 小時 40 分",
+                "duration": "1 日遊 / 2 日小吃行",
+                "summary": "古都散策加上非海鮮小吃，非常適合愛吃的一家人。",
+                "spots": [
+                      {
+                            "name": "安平古堡",
+                            "note": "台南經典古蹟與老街路線。"
+                      },
+                      {
+                            "name": "赤崁樓",
+                            "note": "市區歷史景點，周邊小吃多。"
+                      },
+                      {
+                            "name": "神農街",
+                            "note": "夜晚氛圍好，適合散步拍照。"
+                      },
+                      {
+                            "name": "台南美術館二館",
+                            "note": "建築漂亮，雨天也適合。"
+                      },
+                      {
+                            "name": "奇美博物館",
+                            "note": "建築與展覽都很有看點。"
+                      },
+                      {
+                            "name": "十鼓仁糖文創園區",
+                            "note": "親子、表演與文創園區。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "文章牛肉湯",
+                            "note": "台南知名牛肉湯，早午餐都適合。"
+                      },
+                      {
+                            "name": "富盛號碗粿",
+                            "note": "台南老字號碗粿。"
+                      },
+                      {
+                            "name": "阿全碗粿",
+                            "note": "在地人氣碗粿選擇。"
+                      },
+                      {
+                            "name": "莉莉水果店",
+                            "note": "水果冰與水果切盤很適合飯後。"
+                      },
+                      {
+                            "name": "蜷尾家冰淇淋",
+                            "note": "創意口味冰品，年輕人很喜歡。"
+                      },
+                      {
+                            "name": "金得春捲",
+                            "note": "台南代表春捲小吃。"
+                      }
+                ]
+          },
+          "kaohsiung_city": {
+                "transport": "開車約 3 小時 30 分",
+                "duration": "1 日壓縮遊 / 2 日港都遊",
+                "summary": "港都景點、文創園區、表演場館與城市夜景都很適合。",
+                "spots": [
+                      {
+                            "name": "駁二藝術特區",
+                            "note": "文創、展覽與港邊散步。"
+                      },
+                      {
+                            "name": "愛河灣",
+                            "note": "夜景、音樂中心與城市景觀。"
+                      },
+                      {
+                            "name": "蓮池潭",
+                            "note": "龍虎塔與湖景散步。"
+                      },
+                      {
+                            "name": "衛武營國家藝術文化中心",
+                            "note": "建築與戶外公園都好拍。"
+                      },
+                      {
+                            "name": "佛陀紀念館",
+                            "note": "園區廣大，適合家庭走走。"
+                      },
+                      {
+                            "name": "壽山動物園",
+                            "note": "親子友善，順遊西子灣也方便。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "興隆居",
+                            "note": "湯包、燒餅與早餐很有名。"
+                      },
+                      {
+                            "name": "港園牛肉麵",
+                            "note": "高雄知名牛肉麵老店。"
+                      },
+                      {
+                            "name": "老江紅茶牛奶",
+                            "note": "紅茶牛奶與蛋餅很受歡迎。"
+                      },
+                      {
+                            "name": "丹丹漢堡",
+                            "note": "南部特色速食，家庭接受度高。"
+                      },
+                      {
+                            "name": "鴨肉珍",
+                            "note": "鴨肉飯與切盤是人氣選擇。"
+                      },
+                      {
+                            "name": "鄭老牌木瓜牛奶",
+                            "note": "六合夜市附近人氣飲品。"
+                      }
+                ]
+          },
+          "pingtung_county": {
+                "transport": "開車約 4 小時～5 小時",
+                "duration": "1 日壓縮遊 / 2 日南國遊",
+                "summary": "墾丁、恆春、客家文化與山海景色都多，建議安排兩天以上。",
+                "spots": [
+                      {
+                            "name": "墾丁國家公園",
+                            "note": "南國海岸、草原與自然景觀。"
+                      },
+                      {
+                            "name": "鵝鑾鼻公園",
+                            "note": "燈塔與海岸步道是經典地標。"
+                      },
+                      {
+                            "name": "恆春古城",
+                            "note": "古城門、老街與小鎮氛圍。"
+                      },
+                      {
+                            "name": "勝利星村創意生活園區",
+                            "note": "眷村建築與小店適合散步。"
+                      },
+                      {
+                            "name": "六堆客家文化園區",
+                            "note": "客家文化、展館與草地。"
+                      },
+                      {
+                            "name": "山川琉璃吊橋",
+                            "note": "吊橋景觀與原民文化特色。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "萬巒豬腳",
+                            "note": "屏東代表名菜，適合多人共享。"
+                      },
+                      {
+                            "name": "潮州冷熱冰",
+                            "note": "冷熱交融甜點，很有地方特色。"
+                      },
+                      {
+                            "name": "恆春小杜包子",
+                            "note": "墾丁恆春常見人氣點心。"
+                      },
+                      {
+                            "name": "屏東夜市肉圓",
+                            "note": "肉圓小吃選擇，適合快速用餐。"
+                      },
+                      {
+                            "name": "佳冬粄條",
+                            "note": "客家米食，口味樸實。"
+                      },
+                      {
+                            "name": "內埔豆花",
+                            "note": "飯後甜點，清爽好入口。"
+                      }
+                ]
+          },
+          "yilan_county": {
+                "transport": "開車約 1 小時 35 分",
+                "duration": "1 日遊 / 2 日溫泉遊",
+                "summary": "溫泉、農場、老街與林業園區都適合親子和長輩。",
+                "spots": [
+                      {
+                            "name": "礁溪溫泉公園",
+                            "note": "泡腳、溫泉與散步都方便。"
+                      },
+                      {
+                            "name": "羅東林業文化園區",
+                            "note": "木棧道與林業歷史，環境舒服。"
+                      },
+                      {
+                            "name": "幾米公園",
+                            "note": "市區拍照景點，適合輕鬆逛。"
+                      },
+                      {
+                            "name": "國立傳統藝術中心",
+                            "note": "傳統工藝、街區與表演。"
+                      },
+                      {
+                            "name": "張美阿嬤農場",
+                            "note": "親子互動與小動物體驗。"
+                      },
+                      {
+                            "name": "太平山國家森林遊樂區",
+                            "note": "山林步道與見晴懷古步道很漂亮。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "正好鮮肉小籠包",
+                            "note": "皮薄多汁，宜蘭人氣點心。"
+                      },
+                      {
+                            "name": "北門綠豆沙牛乳",
+                            "note": "清爽飲品，夏天尤其適合。"
+                      },
+                      {
+                            "name": "北門蒜味肉羹",
+                            "note": "蒜味濃郁，宜蘭經典小吃。"
+                      },
+                      {
+                            "name": "礁溪蔥油餅",
+                            "note": "現煎蔥油餅香氣足。"
+                      },
+                      {
+                            "name": "奕順軒奶凍卷",
+                            "note": "宜蘭伴手禮選擇。"
+                      },
+                      {
+                            "name": "甕窯雞 礁溪店",
+                            "note": "多人同行很適合，烤雞香氣足。"
+                      }
+                ]
+          },
+          "hualien_county": {
+                "transport": "開車約 5 小時",
+                "duration": "1 日壓縮遊 / 2 日或 3 日慢遊",
+                "summary": "山海景色壯闊，車程較長，最適合二日以上慢慢玩。",
+                "spots": [
+                      {
+                            "name": "七星潭",
+                            "note": "海岸散步與拍照景點。"
+                      },
+                      {
+                            "name": "太魯閣國家公園",
+                            "note": "峽谷、步道與山景壯觀，依開放狀況調整。"
+                      },
+                      {
+                            "name": "松園別館",
+                            "note": "歷史建築與市區景觀。"
+                      },
+                      {
+                            "name": "林田山林業文化園區",
+                            "note": "木造聚落與林業故事。"
+                      },
+                      {
+                            "name": "雲山水夢幻湖",
+                            "note": "湖景與落羽松季節很漂亮。"
+                      },
+                      {
+                            "name": "東大門夜市",
+                            "note": "夜晚散步與小吃集中，可挑非海鮮選項。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "公正包子",
+                            "note": "花蓮經典包子店，點餐快速。"
+                      },
+                      {
+                            "name": "周家蒸餃",
+                            "note": "蒸餃與酸辣湯是人氣組合。"
+                      },
+                      {
+                            "name": "炸蛋蔥油餅",
+                            "note": "花蓮知名排隊點心。"
+                      },
+                      {
+                            "name": "廟口紅茶",
+                            "note": "古早味紅茶與點心。"
+                      },
+                      {
+                            "name": "玉里橋頭臭豆腐",
+                            "note": "外酥內嫩，路過玉里可安排。"
+                      },
+                      {
+                            "name": "曾記麻糬",
+                            "note": "花蓮代表伴手禮。"
+                      }
+                ]
+          },
+          "taitung_county": {
+                "transport": "開車約 5 小時 20 分",
+                "duration": "1 日壓縮遊 / 2 日或 3 日慢遊",
+                "summary": "景色開闊、步調慢，適合放空、騎車、看山看海與吃在地小吃。",
+                "spots": [
+                      {
+                            "name": "鐵花村音樂聚落",
+                            "note": "晚上氣氛好，文創與音樂都能逛。"
+                      },
+                      {
+                            "name": "台東森林公園",
+                            "note": "湖景、單車與綠地很舒服。"
+                      },
+                      {
+                            "name": "鹿野高台",
+                            "note": "熱氣球季與草地景觀。"
+                      },
+                      {
+                            "name": "伯朗大道",
+                            "note": "稻田景觀與單車路線。"
+                      },
+                      {
+                            "name": "三仙台",
+                            "note": "東海岸代表地景。"
+                      },
+                      {
+                            "name": "池上飯包文化故事館",
+                            "note": "池上米與鐵道便當文化。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "榕樹下米苔目",
+                            "note": "台東代表小吃，湯頭清爽。"
+                      },
+                      {
+                            "name": "藍蜻蜓速食",
+                            "note": "台東人氣炸雞，孩子通常很喜歡。"
+                      },
+                      {
+                            "name": "林家臭豆腐",
+                            "note": "外酥內嫩，人氣高。"
+                      },
+                      {
+                            "name": "池上飯包",
+                            "note": "池上米飯香，適合午餐。"
+                      },
+                      {
+                            "name": "阿鋐炸雞",
+                            "note": "台東在地炸雞名店。"
+                      },
+                      {
+                            "name": "關山臭豆腐",
+                            "note": "關山一帶人氣小吃。"
+                      }
+                ]
+          },
+          "penghu_county": {
+                "transport": "需搭機或搭船；抵達後建議租車 / 包車",
+                "duration": "建議 2 日以上",
+                "summary": "離島景點豐富，這份美食清單已排除海鮮類，改推薦冰品、糕點、飯糰與點心。",
+                "spots": [
+                      {
+                            "name": "澎湖跨海大橋",
+                            "note": "澎湖代表地標。"
+                      },
+                      {
+                            "name": "奎壁山摩西分海",
+                            "note": "潮汐景觀特別，需先查潮汐。"
+                      },
+                      {
+                            "name": "中央老街",
+                            "note": "古厝、伴手禮與老街散步。"
+                      },
+                      {
+                            "name": "雙心石滬",
+                            "note": "澎湖經典拍照地標。"
+                      },
+                      {
+                            "name": "風櫃洞",
+                            "note": "海岸地景與聽濤景點。"
+                      },
+                      {
+                            "name": "西嶼燈塔",
+                            "note": "西嶼線景觀很漂亮。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "玉冠嫩仙草",
+                            "note": "澎湖人氣冰品甜點。"
+                      },
+                      {
+                            "name": "二信飯糰",
+                            "note": "早餐飯糰選擇，適合出遊前補給。"
+                      },
+                      {
+                            "name": "郵局口蔥油餅",
+                            "note": "現煎蔥油餅，香氣足。"
+                      },
+                      {
+                            "name": "澎湖黑糖糕",
+                            "note": "經典伴手禮，甜而不膩。"
+                      },
+                      {
+                            "name": "仙人掌冰",
+                            "note": "澎湖特色甜點，酸甜清爽。"
+                      },
+                      {
+                            "name": "乾益堂藥膳蛋",
+                            "note": "中央老街老店點心，適合順買。"
+                      }
+                ],
+                "island": true
+          },
+          "kinmen_county": {
+                "transport": "需搭機；抵達後建議租車 / 包車",
+                "duration": "建議 2 日以上",
+                "summary": "閩南聚落、戰地風情與特色伴手禮明顯；美食以牛肉、粥、燒餅與點心為主。",
+                "spots": [
+                      {
+                            "name": "莒光樓",
+                            "note": "金門代表地標，可認識金門歷史。"
+                      },
+                      {
+                            "name": "翟山坑道",
+                            "note": "戰地坑道景觀很有特色。"
+                      },
+                      {
+                            "name": "水頭聚落",
+                            "note": "閩南洋樓與古厝景觀。"
+                      },
+                      {
+                            "name": "山后民俗文化村",
+                            "note": "保存完整的傳統聚落。"
+                      },
+                      {
+                            "name": "慈湖三角堡",
+                            "note": "看夕陽與候鳥很有氣氛。"
+                      },
+                      {
+                            "name": "金門酒廠",
+                            "note": "了解高粱酒文化並買伴手禮。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "高坑牛肉乾",
+                            "note": "金門代表伴手禮，牛肉乾口味多。"
+                      },
+                      {
+                            "name": "金許園牛肉麵",
+                            "note": "牛肉麵與牛肉料理很受歡迎。"
+                      },
+                      {
+                            "name": "壽記廣東粥",
+                            "note": "金門早餐常見選擇，溫暖飽足。"
+                      },
+                      {
+                            "name": "榕榕園牛肉麵",
+                            "note": "金門人氣牛肉麵店。"
+                      },
+                      {
+                            "name": "金門貢糖",
+                            "note": "經典伴手禮，適合帶回家。"
+                      },
+                      {
+                            "name": "金門燒餅",
+                            "note": "傳統點心，早餐或下午茶都可以。"
+                      }
+                ],
+                "island": true
+          },
+          "lienchiang_county": {
+                "transport": "需搭機或搭船；島際交通需預留時間",
+                "duration": "建議 2 日以上",
+                "summary": "馬祖聚落、坑道、燈塔與離島風景很有特色；美食避開海鮮，主打老酒、紅糟與點心。",
+                "spots": [
+                      {
+                            "name": "北海坑道",
+                            "note": "馬祖代表坑道景觀，適合搭搖櫓或步行參觀。"
+                      },
+                      {
+                            "name": "芹壁聚落",
+                            "note": "石屋聚落與海景非常好拍。"
+                      },
+                      {
+                            "name": "大坵島",
+                            "note": "梅花鹿與離島景觀。"
+                      },
+                      {
+                            "name": "鐵堡",
+                            "note": "戰地風情明顯。"
+                      },
+                      {
+                            "name": "馬祖酒廠",
+                            "note": "認識馬祖酒文化。"
+                      },
+                      {
+                            "name": "東莒燈塔",
+                            "note": "燈塔與海岸景觀漂亮。"
+                      }
+                ],
+                "foods": [
+                      {
+                            "name": "繼光餅",
+                            "note": "馬祖特色點心，可夾肉或單吃。"
+                      },
+                      {
+                            "name": "馬祖老酒麵線",
+                            "note": "老酒香氣濃郁，暖胃又有地方特色。"
+                      },
+                      {
+                            "name": "紅糟雞",
+                            "note": "紅糟風味料理，適合多人共享。"
+                      },
+                      {
+                            "name": "黃金餃",
+                            "note": "地瓜風味甜點，可熱食或冰品搭配。"
+                      },
+                      {
+                            "name": "馬祖酥",
+                            "note": "伴手禮點心，方便帶回家。"
+                      },
+                      {
+                            "name": "老酒蛋捲",
+                            "note": "酒香蛋捲甜點，適合作伴手禮。"
+                      }
+                ],
+                "island": true
+          }
+    };
+
+    const guides = Object.fromEntries(
+      Object.entries(countySeeds).map(([id, data]) => [id, makeGuide(id, data)])
+    );
+
+    function makeGuide(id, data) {
+      const attraction = attractions.find(item => item.id === id);
+      const name = attraction ? attraction.name : id;
+      const spots = data.spots || [];
+      const foods = data.foods || [];
+      const s1 = spots[0] || { name, note: '推薦景點。' };
+      const s2 = spots[1] || s1;
+      const s3 = spots[2] || s2;
+      const s4 = spots[3] || s3;
+      const f1 = foods[0] || { name: `${name}在地小吃`, note: '已排除海鮮類選項。' };
+      const f2 = foods[1] || f1;
+      const f3 = foods[2] || f2;
+      const isLong = data.long || data.island || /花蓮|臺東|屏東|高雄|澎湖|金門|連江/.test(name);
+      const departText = data.island
+        ? '從新竹市磐石路前往機場或港口，再轉乘至目的地；離島請預留班機、船班與租車時間。'
+        : isLong
+          ? '從新竹市磐石路出發，路程較長，建議提早出門；若時間允許更推薦切換 2 日遊。'
+          : '從新竹市磐石路出發，安排輕鬆順遊路線。';
+      return {
+        transport: data.transport,
+        duration: data.duration,
+        summary: data.summary,
+        spots,
+        foods,
+        plans: {
+          one: {
+            label: '1 日遊',
+            title: `${name}${isLong ? '壓縮版' : '精華'}一日遊`,
+            route: ['新竹市磐石路', s1.name, f1.name, s2.name, s3.name, '返回新竹市磐石路'],
+            stops: [
+              { time: isLong ? '06:30' : '08:00', title: '新竹市磐石路出發', detail: departText, map: '新竹市磐石路' },
+              { time: isLong ? '10:30' : '09:30', title: s1.name, detail: s1.note, map: s1.name },
+              { time: '12:00', title: `${f1.name}午餐`, detail: f1.note, map: f1.name },
+              { time: '14:00', title: s2.name, detail: s2.note, map: s2.name },
+              { time: '16:00', title: s3.name, detail: s3.note, map: s3.name },
+              { time: isLong ? '18:30' : '18:00', title: '晚餐或返程', detail: `${isLong ? '若車程過長，建議改住一晚。' : '可依體力決定在當地用餐或直接返回新竹。'}美食推薦已排除海鮮類。`, map: f2.name }
+            ]
+          },
+          two: {
+            label: '2 日遊',
+            title: `${name}二日深度遊`,
+            route: ['新竹市磐石路', s1.name, f1.name, s2.name, '住宿 / 休息', s3.name, f2.name, s4.name, '返回新竹市磐石路'],
+            stops: [
+              { time: 'Day1 08:00', title: '新竹市磐石路出發', detail: data.island ? '先前往機場或港口，再轉乘至目的地；請依實際班次調整。' : '第一天先安排主要景點與在地午餐。', map: '新竹市磐石路' },
+              { time: 'Day1 10:30', title: s1.name, detail: s1.note, map: s1.name },
+              { time: 'Day1 12:30', title: `${f1.name}午餐`, detail: f1.note, map: f1.name },
+              { time: 'Day1 15:00', title: s2.name, detail: s2.note, map: s2.name },
+              { time: 'Day1 18:00', title: `${f2.name}晚餐`, detail: `${f2.note} 晚餐後建議提早休息。`, map: f2.name },
+              { time: 'Day2 09:30', title: s3.name, detail: s3.note, map: s3.name },
+              { time: 'Day2 12:00', title: `${f3.name}午餐`, detail: f3.note, map: f3.name },
+              { time: 'Day2 14:00', title: s4.name, detail: s4.note, map: s4.name },
+              { time: 'Day2 16:30', title: '返程或買伴手禮', detail: '依交通時間回到新竹市磐石路；離島請依班機或船班調整。', map: '新竹市磐石路' }
+            ]
+          }
+        }
+      };
+    }
+
+    let state = loadState();
+    let animating = false;
+    const stage = document.getElementById('stage');
+    const toast = document.getElementById('toast');
+    const tieBreakBtn = document.getElementById('tieBreakBtn');
+    const winnerPlace = document.getElementById('winnerPlace');
+    const winnerVote = document.getElementById('winnerVote');
+    const winnerShare = document.getElementById('winnerShare');
+    const pickedGuideGrid = document.getElementById('pickedGuideGrid');
+    const winnerPlanner = document.getElementById('winnerPlanner');
+
+    init();
+
+    function init() {
+      document.querySelectorAll('.action-btn[data-member]').forEach(btn => {
+        btn.addEventListener('click', () => throwDart(btn.dataset.member, btn));
+      });
+      document.getElementById('resetBtn').addEventListener('click', resetAll);
+      document.getElementById('resetTopBtn').addEventListener('click', resetAll);
+      tieBreakBtn.addEventListener('click', tieBreak);
+      document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-plan-mode]');
+        if (!button) return;
+        state.planMode = button.dataset.planMode;
+        saveState();
+        renderWinnerPlanner();
+      });
+      render();
+    }
+
+    function defaultState() { return { results: {}, tieBreakWinnerId: null, planMode: 'one' }; }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : defaultState();
+        return { results: parsed.results || {}, tieBreakWinnerId: parsed.tieBreakWinnerId || null, planMode: parsed.planMode || 'one' };
+      } catch (_) { return defaultState(); }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function resetAll() {
+      if (!confirm('要重新開始本次抽籤嗎？')) return;
+      state = defaultState();
+      saveState();
+      render();
+      showToast('已重新開始抽籤');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function tieBreak() {
+      const summary = getSummary();
+      if (!summary.isTie || summary.totalVotes < members.length) return;
+      const picked = summary.topAttractions[Math.floor(Math.random() * summary.topAttractions.length)];
+      state.tieBreakWinnerId = picked.id;
+      saveState();
+      render();
+      showToast(`平手決勝抽：${picked.name}`);
+      document.getElementById('winnerPlanner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function throwDart(memberId, button) {
+      if (animating || state.results[memberId]) return;
+      animating = true;
+      state.tieBreakWinnerId = null;
+      setButtonsDisabled(true);
+      const member = getMember(memberId);
+      const attraction = attractions[Math.floor(Math.random() * attractions.length)];
+      await animateThrow(button, member, attraction);
+      state.results[memberId] = attraction.id;
+      saveState();
+      animating = false;
+      render();
+      showToast(`${member.name}抽中：${attraction.name}`);
+      document.getElementById('pickedGuideGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function animateThrow(button, member, attraction) {
+      return new Promise(resolve => {
+        const stageRect = stage.getBoundingClientRect();
+        const btnRect = button.getBoundingClientRect();
+        const startX = ((btnRect.left + btnRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+        const startY = ((btnRect.top + btnRect.height / 2 - stageRect.top) / stageRect.height) * 100;
+        const dart = document.createElement('div');
+        dart.className = 'dart';
+        dart.textContent = member.dart;
+        dart.style.left = startX + '%';
+        dart.style.top = startY + '%';
+        stage.appendChild(dart);
+        requestAnimationFrame(() => {
+          dart.style.left = attraction.x + '%';
+          dart.style.top = attraction.y + '%';
+          dart.style.transform = 'translate(-50%, -50%) scale(1.18) rotate(18deg)';
+        });
+        setTimeout(() => {
+          dart.classList.add('done');
+          setTimeout(() => { dart.remove(); resolve(); }, 230);
+        }, 850);
+      });
+    }
+
+    function setButtonsDisabled(disabled) {
+      document.querySelectorAll('.action-btn[data-member]').forEach(btn => {
+        const picked = !!state.results[btn.dataset.member];
+        btn.disabled = disabled || picked;
+      });
+    }
+
+    function render() {
+      renderMemberResults();
+      renderWinner();
+      renderPickedGuides();
+      renderWinnerPlanner();
+    }
+
+    function renderMemberResults() {
+      members.forEach(member => {
+        const attraction = state.results[member.id] ? getAttraction(state.results[member.id]) : null;
+        const pill = document.getElementById(`pill-${member.id}`);
+        const status = document.getElementById(`status-${member.id}`);
+        const done = document.getElementById(`done-${member.id}`);
+        const btn = document.querySelector(member.button);
+
+        if (attraction) {
+          pill.classList.remove('empty');
+          pill.innerHTML = `📍 ${attraction.name}`;
+          done.style.display = 'flex';
+          status.textContent = '↓ 查看推薦';
+          status.classList.add('active');
+          btn.disabled = true;
+          btn.innerHTML = `<span class="main">✅ ${member.name}已抽</span><span class="sub">${attraction.name}</span>`;
+          btn.dataset.tip = '已完成';
+        } else {
+          pill.classList.add('empty');
+          pill.innerHTML = `📍 尚未抽`;
+          done.style.display = 'none';
+          status.textContent = '尚未抽籤';
+          status.classList.remove('active');
+          btn.disabled = false;
+          btn.innerHTML = `<span class="main">🎯 ${member.name}射飛鏢</span><span class="sub">按這裡抽籤</span>`;
+          btn.dataset.tip = '點我抽籤';
+        }
+      });
+      setButtonsDisabled(false);
+    }
+
+    function renderWinner() {
+      const summary = getSummary();
+      let placeText = '尚未抽籤';
+      let voteText = '0票';
+      let shareText = '';
+      let isEmpty = true;
+
+      if (summary.totalVotes > 0) {
+        isEmpty = false;
+        if (summary.isTie) {
+          if (state.tieBreakWinnerId && summary.totalVotes === members.length) {
+            const chosen = getAttraction(state.tieBreakWinnerId);
+            placeText = chosen ? chosen.name : '已決勝';
+            voteText = '決勝';
+            shareText = `本次家庭假日出遊決勝抽結果：最後決定去「${placeText}」！也已自動產生從新竹市磐石路出發的旅遊行程與美食建議。`;
+          } else {
+            placeText = '平手';
+            voteText = `${summary.topCount}票`;
+            shareText = `本次家庭假日出遊抽籤目前平手：${summary.topAttractions.map(a => a.name).join('、')}，各 ${summary.topCount} 票。`;
+          }
+        } else {
+          const winner = summary.topAttractions[0];
+          placeText = winner.name;
+          voteText = `${summary.topCount}票`;
+          shareText = `本次家庭假日出遊抽籤結果：最高票縣市是「${winner.name}」，共獲得 ${summary.topCount} 票！已提供從新竹市磐石路出發的詳細行程。`;
+        }
+      }
+
+      winnerPlace.textContent = placeText;
+      winnerVote.textContent = voteText;
+      winnerPlace.classList.toggle('empty', isEmpty);
+      if (shareText) {
+        winnerShare.href = lineUrl(shareText);
+        winnerShare.classList.remove('disabled');
+        winnerShare.setAttribute('target', '_blank');
+        winnerShare.setAttribute('rel', 'noopener noreferrer');
+        winnerShare.setAttribute('aria-disabled', 'false');
+      } else {
+        winnerShare.href = '#';
+        winnerShare.classList.add('disabled');
+        winnerShare.removeAttribute('target');
+        winnerShare.removeAttribute('rel');
+        winnerShare.setAttribute('aria-disabled', 'true');
+      }
+
+      if (summary.isTie && summary.totalVotes === members.length && !state.tieBreakWinnerId) {
+        tieBreakBtn.style.display = 'block';
+      } else {
+        tieBreakBtn.style.display = 'none';
+      }
+    }
+
+    function renderPickedGuides() {
+      pickedGuideGrid.innerHTML = '';
+      const resultEntries = members.filter(m => state.results[m.id]);
+      if (!resultEntries.length) {
+        pickedGuideGrid.innerHTML = `<div class="empty-card" style="grid-column: 1 / -1;">尚未有人抽籤。<br>請先點上方彩色大按鈕，抽完後這裡會自動顯示推薦景點、美食名店與 Google Maps 導航。</div>`;
+        return;
+      }
+      resultEntries.forEach(member => {
+        const attraction = getAttraction(state.results[member.id]);
+        const guide = guides[attraction.id];
+        const spotRows = guide.spots.map(spot => linkedRow(spot.name, spot.note)).join('');
+        const foodRows = guide.foods.map(food => linkedRow(food.name, food.note)).join('');
+        const card = document.createElement('article');
+        card.className = 'guide-card';
+        card.innerHTML = `
+          <div class="guide-header" style="background:${member.color};">
+            <div>📍 ${attraction.name}</div>
+            <div class="member-tag">${member.name}抽中</div>
+          </div>
+          <div class="guide-body">
+            <div class="travel-meta">
+              <span class="meta-pill">🚗 ${guide.transport}</span>
+              <span class="meta-pill">🗓️ ${guide.duration}</span>
+            </div>
+            <div style="color:var(--muted); line-height:1.7; font-size:14px;">${guide.summary}</div>
+            <div class="guide-section-title">更多推薦景點</div>
+            <ul class="linked-list">${spotRows}</ul>
+            <div class="guide-section-title">更多在地名店 / 美食</div>
+            <ul class="linked-list">${foodRows}</ul>
+          </div>
+        `;
+        pickedGuideGrid.appendChild(card);
+      });
+    }
+
+    function renderWinnerPlanner() {
+      const summary = getSummary();
+      winnerPlanner.innerHTML = '';
+
+      if (!summary.totalVotes) {
+        winnerPlanner.innerHTML = `<div class="empty-card">尚未產生最高票縣市。<br>請先讓家人們開始抽籤。</div>`;
+        return;
+      }
+
+      if (summary.isTie && !state.tieBreakWinnerId) {
+        winnerPlanner.innerHTML = `<div class="empty-card">目前最高票縣市平手：<strong>${summary.topAttractions.map(a => a.name).join('、')}</strong>。<br>請先按上方右側的「平手地點決勝抽」，系統才會產生最後行程。</div>`;
+        return;
+      }
+
+      const winnerId = state.tieBreakWinnerId || (summary.topAttractions[0] && summary.topAttractions[0].id);
+      const winner = getAttraction(winnerId);
+      const guide = winner ? guides[winner.id] : null;
+      if (!winner || !guide) {
+        winnerPlanner.innerHTML = `<div class="empty-card">目前沒有可顯示的行程資料。</div>`;
+        return;
+      }
+
+      const mode = state.planMode || 'one';
+      const plan = guide.plans[mode] || guide.plans.one;
+      const summaryBox = document.createElement('div');
+      summaryBox.className = 'winner-summary';
+      summaryBox.innerHTML = `
+        <div class="badge">🏆 最高票縣市</div>
+        <h3 class="winner-big">${winner.name}</h3>
+        <p class="winner-desc">${guide.summary} 目前建議從 <strong>新竹市磐石路</strong> 出發，並可依時間切換 1 日遊或 2 日遊。</p>
+      `;
+      winnerPlanner.appendChild(summaryBox);
+
+      const itineraryCard = document.createElement('div');
+      itineraryCard.className = 'itinerary-card';
+      itineraryCard.innerHTML = `
+        <div class="day-toggle">
+          <button type="button" data-plan-mode="one" class="${mode === 'one' ? 'active' : ''}">1 日遊</button>
+          <button type="button" data-plan-mode="two" class="${mode === 'two' ? 'active' : ''}">2 日遊</button>
+        </div>
+        <div class="itinerary-top">
+          <span class="route-pill">📍 出發地：新竹市磐石路</span>
+          <span class="route-pill">🚗 ${guide.transport}</span>
+          <span class="route-pill">🧭 ${plan.title}</span>
+        </div>
+        <div class="route-action"><a class="map-link nav" href="${planRouteUrl(plan)}" target="_blank" rel="noopener noreferrer">🧭 開啟整趟 Google Maps 路線</a></div>
+        <div class="guide-section-title" style="margin-top:0;">建議路線</div>
+        <div style="line-height:1.8; color:var(--muted); font-size:14px; margin-bottom:14px;">${plan.route.join(' → ')}</div>
+        <div class="guide-section-title">${plan.label}時間安排</div>
+        <div class="timeline">${plan.stops.map(step => `
+          <div class="timeline-item">
+            <div class="timeline-time">${step.time}</div>
+            <div class="timeline-content">
+              <strong>${step.title}</strong>
+              <p>${step.detail}</p>
+              <div style="margin-top:8px;"><a class="map-link nav" href="${mapDirectionUrl(step.map || step.title)}" target="_blank" rel="noopener noreferrer">Google Maps 導航</a></div>
+            </div>
+          </div>
+        `).join('')}</div>
+        <div class="guide-section-title">當地名店 / 美食推薦</div>
+        <ul class="linked-list">${guide.foods.map(food => linkedRow(food.name, food.note)).join('')}</ul>
+        <div class="guide-section-title">可加選推薦景點</div>
+        <ul class="linked-list">${guide.spots.map(spot => linkedRow(spot.name, spot.note)).join('')}</ul>
+      `;
+      winnerPlanner.appendChild(itineraryCard);
+    }
+
+    function getSummary() {
+      const counts = {};
+      Object.values(state.results).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+      const totalVotes = Object.keys(state.results).length;
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const topCount = entries[0] ? entries[0][1] : 0;
+      const topAttractions = entries.filter(([_, count]) => count === topCount).map(([id]) => getAttraction(id));
+      return { totalVotes, topCount, topAttractions, isTie: topAttractions.length > 1 };
+    }
+
+    function getAttraction(id) { return attractions.find(item => item.id === id); }
+    function getMember(id) { return members.find(item => item.id === id); }
+
+    function memberShareText(member, attraction) {
+      const guide = guides[attraction.id];
+      return `${member.name}在「假日出遊抽籤」射飛鏢抽中了「${attraction.name}」！推薦可以去：${guide.spots.slice(0,2).map(item => item.name).join('、')}。美食推薦已排除海鮮類。`;
+    }
+
+    function linkedRow(name, note) {
+      return `
+        <li class="linked-row">
+          <div><strong>${name}</strong><span>${note}</span></div>
+          <div class="link-actions">
+            <a class="map-link" href="${mapSearchUrl(name)}" target="_blank" rel="noopener noreferrer">地圖</a>
+            <a class="map-link nav" href="${mapDirectionUrl(name)}" target="_blank" rel="noopener noreferrer">導航</a>
+          </div>
+        </li>
+      `;
+    }
+
+    function mapSearchUrl(query) {
+      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query + ' 台灣');
+    }
+
+    function mapDirectionUrl(destination) {
+      return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent('新竹市磐石路') + '&destination=' + encodeURIComponent(destination + ' 台灣') + '&travelmode=driving&dir_action=navigate';
+    }
+
+    function planRouteUrl(plan) {
+      const stops = plan.stops.map(step => step.map || step.title).filter(Boolean);
+      const destination = stops[stops.length - 1] || plan.route[plan.route.length - 1];
+      const waypoints = stops.slice(0, Math.min(3, stops.length - 1));
+      let url = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent('新竹市磐石路') + '&destination=' + encodeURIComponent(destination + ' 台灣') + '&travelmode=driving';
+      if (waypoints.length) url += '&waypoints=' + encodeURIComponent(waypoints.map(x => x + ' 台灣').join('|'));
+      return url;
+    }
+
+    function lineUrl(text) { return 'https://line.me/R/share?text=' + encodeURIComponent(text); }
+
+    let toastTimer;
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+  </script>
+</body>
+</html>
